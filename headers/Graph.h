@@ -1,27 +1,42 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include <list>
 #include <vector>
+#include <map>
+#include <algorithm>
 
 template <typename T>
 class Graph
 {
     private:
-        std::vector<T> nodes;
-        std::vector<std::vector<bool>> adjs; // una matrice per le adiacenze
+        std::list<T> nodes;
+        std::multimap<int,int> adjs; // adiacenze
 
-    public:
+        void removeOneEdge(int,int);
+        
+        public:
+        //costruttori
         Graph();
-        Graph(std::vector<T>,std::vector<std::vector<bool>>);
+        Graph(const std::vector<T>&, const std::vector<std::vector<int>>&);
+        Graph(const std::list<T>&,const std::multimap<int,int>&);
         Graph(const Graph&);
-
+        
+        //modifiche
         void addNode(T);
         void addEdge(int,int);
+        Graph<T>& operator+=(T);
+        Graph<T>& operator+=(std::pair<int,int>);
         void addConnectedNode(T,std::vector<int>);
 
         void removeEdge(int,int);
+        void removeNode(int);
+        Graph<T>& operator-=(T);
+        Graph<T>& operator-=(std::pair<int,int>);
 
+        //accessi
         int nNodes() const;
+        int getPos(const T&) const;
         T& operator[](int);
         const T& operator[](int) const;
         const std::vector<int> adj(int) const;
@@ -29,11 +44,35 @@ class Graph
         ~Graph();
 };
 
+template<typename T>
+void Graph<T>::removeOneEdge(int from,int to){
+    auto it = adjs.find(from);
+    while (it!=adjs.end() && it->second!=to && it->first==from){ // trovo il collegamento
+        it++;
+    }
+
+    if (it!=adjs.end() && it->first==from){ // se ho trovato l'arco lo elimino
+        adjs.erase(it);
+    } // else throw std::__throw_runtime_error("Node does not exist");
+}
+
 template <typename T>
 Graph<T>::Graph(){      }
 
 template <typename T>
-Graph<T>::Graph(std::vector<T> n,std::vector<std::vector<bool>> a) : nodes(n), adjs(a) { }
+Graph<T>::Graph(const std::vector<T>& n, const std::vector<std::vector<int>>& a) : nodes(n.begin(),n.end()) {
+
+    int minLenght = (a.size() < n.size() ? a.size() : n.size()); // prendo il minimo per evitare incorrettezze
+    
+    for (int i=0; i<minLenght; i++){ 
+        for (int pos : a[i]){
+            adjs.emplace(pos,i);
+        }
+    }
+}
+
+template <typename T>
+Graph<T>::Graph(const std::list<T>& n,const std::multimap<int,int>& a) : nodes(n), adjs(a) {  }
 
 template <typename T>
 Graph<T>::Graph(const Graph& o){
@@ -45,36 +84,83 @@ void Graph<T>::addNode(T newNode){
 
     nodes.push_back(newNode); // aggiungo il nuovo nodo
 
-    for (std::vector<bool>& neighbors : adjs){ // aggiungo la entry di quel nodo nelle altre liste di adiacenza
-        neighbors.push_back(false);
-    }
-
-    std::vector<bool> a(nodes.size(),false); // aggiungo la lista di adiacenza di quel nodo
-    adjs.push_back(a);
 }
 
 template <typename T>
 void Graph<T>::addEdge(int a,int b){
-    if( a<nodes.size(), b<nodes.size()){
-        adjs[a][b]=true;
-        adjs[b][a]=true;
-    }
+    if( a<nodes.size() && b<nodes.size()){
+        adjs.emplace(a,b);
+        adjs.emplace(b,a);
+    } // else throw std::__throw_runtime_error("Node does not exist");
+}
+
+template <typename T>
+Graph<T>& Graph<T>::operator+=(T newN){
+    addNode(newN);
+    return *this;
+}
+
+template <typename T>
+Graph<T>& Graph<T>::operator+=(std::pair<int,int> edge){
+    addEdge(edge.first,edge.second);
+    return *this;
 }
 
 template <typename T>
 void Graph<T>::addConnectedNode(T newNode,std::vector<int> neighbors){
     addNode(newNode);
     for(int i : neighbors){
-        addEdge(nodes.size()-1,i);
+        addEdge(nodes.size()-1,i); // nodes.size()-1 è il nuovo nodo appena aggiunto
     }
 }
 
 template <typename T>
 void Graph<T>::removeEdge(int a,int b){
-    if( a<nodes.size(), b<nodes.size()){
-        adjs[a][b]=false;
-        adjs[b][a]=false;
+    if( a<nodes.size() && b<nodes.size()){
+        removeOneEdge(b,a);
+        removeOneEdge(a,b);
     }
+}
+
+template<typename T>
+void Graph<T>::removeNode(int index){
+
+    if (index >= nodes.size() && index<0) return; // else throw std::__throw_runtime_error("Node does not exist");
+
+    auto it = nodes.begin();
+    std::advance(it,index);
+    nodes.erase(it); // rimuovo il nodo
+
+    adjs.erase(index); // rimuovo tutti gli archi che partono dal nodo 
+
+    auto itM = adjs.begin(); // rimuovo l'altra metà
+    while (itM != adjs.end()){
+        if (itM->second == index){
+            itM = adjs.erase(itM);
+        } else itM++;
+    }
+
+    std::multimap<int,int> updated; // aggiorno le adiacenze in modo che siano corrette
+
+    std::for_each(adjs.begin(), adjs.end(), [&](const auto& p) {
+        int from = p.first > index ? p.first - 1 : p.first;
+        int to = p.second > index ? p.second - 1 : p.second;
+        updated.emplace(from, to);
+    });
+    adjs = std::move(updated);
+    
+}
+
+template<typename T>
+Graph<T>& Graph<T>::operator-=(T node){
+    removeNode(getPos(node));
+    return *this;
+}
+
+template<typename T>
+Graph<T>& Graph<T>::operator-=(std::pair<int,int> edge){
+    removeEdge(edge.first,edge.second);
+    return *this;
 }
 
 template<typename T>
@@ -83,16 +169,30 @@ int Graph<T>::nNodes() const{
 }
 
 template<typename T>
+int Graph<T>::getPos(const T& node) const{
+    for (int i=0;i<nodes.size();i++){
+        if ((*this)[i]==node){
+            return i;
+        }
+    }
+    return -1; //non lo ho trovato;
+}
+
+template<typename T>
 T& Graph<T>::operator[](int index){
     if(index<nodes.size()){
-        return nodes[index];
+        auto it = nodes.begin();
+        std::advance(it,index);
+        return *it;
     } // else throw std::__throw_runtime_error("Node does not exist");
 }
 
 template<typename T>
 const T& Graph<T>::operator[](int index) const{
     if(index<nodes.size()){
-        return nodes[index];
+        auto it = nodes.begin();
+        std::advance(it,index);
+        return *it;
     } // else throw std::__throw_runtime_error("Node does not exist");
 }
 
@@ -103,8 +203,9 @@ const std::vector<int> Graph<T>::adj(int index) const{
 
     if(index<nodes.size()){
 
-        for(int i=0;i<adjs[index].size();i++){
-            if (adjs[index][i]) ret.push_back(i);
+        auto range = adjs.equal_range(index);
+        for (auto it = range.first; it!= range.second; it++){
+            ret.push_back(it->second);
         }
 
         return ret;
