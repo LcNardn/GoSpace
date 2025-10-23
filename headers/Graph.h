@@ -1,5 +1,5 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef __GRAPH_H__
+#define __GRAPH_H__
 
 #include <list>
 #include <vector>
@@ -11,7 +11,7 @@ class Graph
 {
     private:
         std::list<T> nodes;
-        std::multimap<int,int> adjs; // adiacenze
+        std::multimap<int,int> adjs; // adiacenze // non uso T poichè potrebbe non essere ordinabile
 
         void removeOneEdge(int,int);
         
