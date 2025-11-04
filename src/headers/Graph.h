@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <exception>
 
 template <typename T>
 class Graph
@@ -21,6 +22,10 @@ class Graph
         Graph(const std::vector<T>&, const std::vector<std::vector<int>>&);
         Graph(const std::list<T>&,const std::multimap<int,int>&);
         Graph(const Graph&);
+
+        // move semantics
+        Graph(Graph&&)=default;
+        Graph& operator=(Graph&&)=default;
         
         //modifiche
         void addNode(T);
@@ -37,9 +42,9 @@ class Graph
         //accessi
         int nNodes() const;
         int getPos(const T&) const;
-        T& operator[](int);
-        const T& operator[](int) const;
-        const std::vector<int> adj(int) const;
+        T& operator[](int); // throws logic_error
+        const T& operator[](int) const; // throws logic_error
+        const std::vector<int> adj(int) const; // throws logic_error
 
         ~Graph();
 };
@@ -53,7 +58,7 @@ void Graph<T>::removeOneEdge(int from,int to){
 
     if (it!=adjs.end() && it->first==from){ // se ho trovato l'arco lo elimino
         adjs.erase(it);
-    } // else throw std::__throw_runtime_error("Node does not exist");
+    }
 }
 
 template <typename T>
@@ -91,7 +96,7 @@ void Graph<T>::addEdge(int a,int b){
     if( a<nodes.size() && b<nodes.size()){
         adjs.emplace(a,b);
         adjs.emplace(b,a);
-    } // else throw std::__throw_runtime_error("Node does not exist");
+    }
 }
 
 template <typename T>
@@ -125,7 +130,7 @@ void Graph<T>::removeEdge(int a,int b){
 template<typename T>
 void Graph<T>::removeNode(int index){
 
-    if (index >= nodes.size() && index<0) return; // else throw std::__throw_runtime_error("Node does not exist");
+    if (index >= nodes.size() || index<0) return;
 
     auto it = nodes.begin();
     std::advance(it,index);
@@ -184,7 +189,7 @@ T& Graph<T>::operator[](int index){
         auto it = nodes.begin();
         std::advance(it,index);
         return *it;
-    } // else throw std::__throw_runtime_error("Node does not exist");
+    } else throw std::logic_error("Node does not exist");
 }
 
 template<typename T>
@@ -193,7 +198,7 @@ const T& Graph<T>::operator[](int index) const{
         auto it = nodes.begin();
         std::advance(it,index);
         return *it;
-    } // else throw std::__throw_runtime_error("Node does not exist");
+    } else throw std::logic_error("Node does not exist");
 }
 
 template<typename T>
@@ -209,7 +214,7 @@ const std::vector<int> Graph<T>::adj(int index) const{
         }
 
         return ret;
-    } // else throw std::__throw_runtime_error("Node does not exist");
+    } else throw std::logic_error("Node does not exist");
 }
 
 template <typename T>

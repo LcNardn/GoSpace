@@ -36,11 +36,11 @@ class Explorer{
 
         // inventario
         Explorer& operator+=(objType);
-        Explorer& operator-=(objType);
+        Explorer& operator-=(objType); // throws logic_error
         bool shootRocket();
 
         // health
-        void damageShip(float);
+        void damageShip(float); // throws logic_error
         bool repairShip();
 
         // energy
@@ -49,7 +49,7 @@ class Explorer{
 
         // oxygen
         Explorer operator++();
-        Explorer operator--();
+        Explorer operator--(); // throws logic_error
 
         friend std::ostream& operator<<(std::ostream&,const Explorer&);
 

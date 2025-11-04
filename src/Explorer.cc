@@ -1,4 +1,5 @@
-#include "../headers/Explorer.h"
+#include "./headers/Explorer.h"
+#include <exception>
 
 #define DELTA 0.000001
 
@@ -39,7 +40,7 @@ Explorer& Explorer::operator+=(objType obj){
 Explorer& Explorer::operator-=(objType obj){
     if (inventory[obj] > 0 ){
         inventory[obj]--;
-    }
+    } else throw std::logic_error("No item in inventory");
     return *this;
 }
 
@@ -53,11 +54,11 @@ bool Explorer::shootRocket(){
 // health
 void Explorer::damageShip(float dmg){
     health-=dmg;
-    if (health <= 0.0) health=0.0; // devo inviare un'eccezzione
+    if (health <= 0) throw std::logic_error("No more health");
 }
 
 bool Explorer::repairShip(){
-    while(inventory[mineral_2]>0 && (heInit-health) > DELTA){
+    while(inventory[mineral_2]>0 && (heInit-health) > DELTA && energy>0){
         health+=((heInit-health)*0.5); // cura 20% dei danni subiti
         *this-=mineral_2;
     }
@@ -90,7 +91,7 @@ Explorer Explorer::operator++(){
 
 Explorer Explorer::operator--(){
     oxygen--;
-    // devo tirare un eccezzione se arrivo a 0
+    if (oxygen==0) throw std::logic_error("No more oxygen");
     return *this;
 }
 
