@@ -31,7 +31,7 @@ void SteamPlanet::action(Explorer& exp) const{
     fishing(exp); // meglio chiamare prima fishing e poi cooking
     cooking(exp); // così ho almeno un pesce da cucinare
 
-    exp.consumeEnergy(energyNeed);
+    exp.consumeEnergy(energyNeed+energySup);
 
 }
 

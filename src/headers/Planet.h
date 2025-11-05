@@ -35,9 +35,6 @@ class Planet{
         // le azioni specifiche dei pianeti vengono invocate con action
         virtual void action(Explorer&) const = 0;
 
-        // per riposare l'esploratore
-        void rest(Explorer&) const;
-
         // per la stampa
         friend std::ostream& operator<<(std::ostream&,const Planet&);
 

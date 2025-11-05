@@ -44,7 +44,7 @@ class Explorer{
         bool repairShip();
 
         // energy
-        void rest();
+        void rest(); // throws logic_error
         void consumeEnergy(float);
 
         // oxygen

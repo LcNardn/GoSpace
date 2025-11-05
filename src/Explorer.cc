@@ -71,10 +71,18 @@ void Explorer::rest(){
 
     if ( (energy-enInit) > DELTA ) return;
 
-    energy+=3;
-    if (inventory[food] > 0){
-        *this-=food;
-        energy+=3;
+    try {
+        --(*this); // se ho finito l'ossigeno non posso riposare e lo segnalo anche alla classe chiamante 
+        energy+=5;
+        if (inventory[food] > 0){
+            *this-=food; // non tirera mai un'eccezzione visto che faccio un controllo prima
+            energy+=3;
+        } 
+    } catch (std::logic_error e) {
+        std::cerr<<e.what()<<std::endl;
+        throw; // segnalo alla classe chiamante
+    } catch (...) {
+        std::cerr<<"An unknown error has occurred.\n";
     }
 }
 

@@ -18,12 +18,12 @@ class Graph
         
         public:
         //costruttori
-        Graph();
+        Graph()=default;
         Graph(const std::vector<T>&, const std::vector<std::vector<int>>&);
         Graph(const std::list<T>&,const std::multimap<int,int>&);
         Graph(const Graph&);
 
-        // move semantics
+        // move semantics visto che T potrebbero essere gestiti in maniera dinamica
         Graph(Graph&&)=default;
         Graph& operator=(Graph&&)=default;
         
@@ -60,9 +60,6 @@ void Graph<T>::removeOneEdge(int from,int to){
         adjs.erase(it);
     }
 }
-
-template <typename T>
-Graph<T>::Graph(){      }
 
 template <typename T>
 Graph<T>::Graph(const std::vector<T>& n, const std::vector<std::vector<int>>& a) : nodes(n.begin(),n.end()) {

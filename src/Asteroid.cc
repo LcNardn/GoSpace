@@ -4,10 +4,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <exception>
 
 int Asteroid::numTot=0;
 
-Asteroid::Asteroid() : Planet("Asteroid",numTot,AsteroidT,0) {
+Asteroid::Asteroid() : Planet("Asteroid",numTot,AsteroidT,4.0) {
     numTot++;
     srand(time(NULL));
     damage = (rand()%20)+1;
@@ -23,11 +24,16 @@ Asteroid::Asteroid(const Asteroid& _o) : Planet(_o) {
 void Asteroid::action(Explorer& exp) const {
     try {
         exp.damageShip(damage);
+        exp.consumeEnergy(energyNeed);
+        std::cout<<"The ship has been damaged by an asteroid for "<<damage<<" health points.\nHP remaining: "<<exp.getHe()<<std::endl;
+    } catch (std::logic_error e){ // non ho più vita e devo segnalarlo a qualcuno
+        std::cerr<<e.what()<<std::endl;
+        std::cout<<"The ship doesn't have more health.\n";
+        throw; // lo segnalo anche alla classe chiamante
     } catch (...){
-        throw;
+        std::cerr<<"An unknown error has occurred.\n";
     }
 
-    std::cout<<"The ship has been damaged by an asteroid for "<<damage<<" health points.\nHP remaining: "<<exp.getHe()<<std::endl;
 }
 
 Asteroid::~Asteroid(){

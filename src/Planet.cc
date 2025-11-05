@@ -46,24 +46,19 @@ bool Planet::regenerate(Explorer& exp){
     } else return false;
 }
 
-void Planet::rest(Explorer& exp) const{
-    if (!isDestroyed)
-        exp.rest(); 
-}
-
 Planet::~Planet(){  }
 
 std::ostream& operator<<(std::ostream& out,const Planet& p){
     out<<"Planet: "<<p.name<<" (";
     switch (p.type)
     {
-    case Water: out<<"Water"; break;
-    case Fire: out<<"Fire"; break;
-    case Earth: out<<"Earth"; break;
-    case Steam: out<<"Steam"; break;
-    case Industry: out<<"Industry"; break;
-    case Destroyed: out<<"Destroyed"; break;
-    case AsteroidT: out<<"Asteroid"; break;
+    case Water: out<<"Wa"; break;
+    case Fire: out<<"Fi"; break;
+    case Earth: out<<"Ea"; break;
+    case Steam: out<<"St"; break;
+    case Industry: out<<"In"; break;
+    case Destroyed: out<<"De"; break;
+    case AsteroidT: out<<"As"; break;
     default: out<<"Unkown"; break;
     }
     out<<","<<p.id.second<<") Currently"<<(p.isDestroyed ? " " : " not ")<<"destoyed.";
