@@ -12,7 +12,7 @@ Planet::Planet(const Planet& _o) : name(_o.name), type(_o.type), id(_o.id), ener
     isDestroyed = _o.isDestroyed;
 }
 
-bool Planet::check(float energyExp) const{
+inline bool Planet::check(float energyExp) const{
     if (isDestroyed) { // non posso fare niente se il pianeta è distrutto o non ho energia a sufficienza
         std::cerr<<"Any action on "<<*this<<" cannot be done.\n";
         std::cout<<"The planet is destroyed. You need to regenerate it first.\n";

@@ -17,13 +17,13 @@ makedirectories:
 	mkdir -p $(OBJ_DIR)
 
 $(BIN): $(SUPPORT_OBJ) $(MAIN_OBJ)
-	g++ -O2 $^ -o $@
+	g++ -std=c++11 -O2 $^ -o $@
 
 $(OBJ_DIR)/%.o: ./src/%.cc makedirectories
-	g++ -c -O2 $< -o $@
+	g++ -std=c++11 -c -O2 $< -o $@
 
 $(MAIN_OBJ): $(MAIN_SRC) makedirectories
-	g++ -c -O2 $< -o $@
+	g++ -std=c++11 -c -O2 $< -o $@
 
 clean:
 	rm -f $(OBJ_DIR)/*.o
@@ -31,5 +31,6 @@ clean:
 play:
 	./io/main.out ./io/newGalaxy.txt ./io/savedGalaxy.txt 2>error.log
 
-.SECONDARY: $(SUPPORT_OBJ) $(MAIN_OBJ) makedirectories
+.SECONDARY: $(SUPPORT_OBJ) makedirectories
+.TEMPORARY: $(MAIN_OBJ)
 .PHONY: clean play

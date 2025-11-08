@@ -25,7 +25,7 @@ class Planet{
         Planet(const Planet&);
 
         // funzione di controllo
-        bool check(float) const;
+        inline bool check(float) const;
 
     public:
         // per gestire la disrtuzione
