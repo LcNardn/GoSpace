@@ -14,7 +14,7 @@ void SteamPlanet::replentishO(Explorer& exp) const{
     }
 }
 
-SteamPlanet::SteamPlanet(std::string _name, int _qFish, float _e, float _eSup,int _O2) : Planet(_name,numTot,Steam,_e), WaterPlanet(_name,_qFish,_e), FirePlanet(_name,_eSup,_e), capacityO(_O2) {
+SteamPlanet::SteamPlanet(std::string _name, int _qFish, float _eSup, int _O2, float _e) : Planet(_name,numTot,Steam,_e), WaterPlanet(_name,_qFish,_e), FirePlanet(_name,_eSup,_e), capacityO(_O2) {
     numTot++;
     std::cout<<"Creating SteamPlanet: "<<*this<<std::endl;
 }

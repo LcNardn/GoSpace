@@ -15,7 +15,7 @@ class SteamPlanet : public FirePlanet, public WaterPlanet {
     
     public:
         SteamPlanet()=delete;
-        SteamPlanet(std::string,int,float,float,int);
+        SteamPlanet(std::string,int,float,int,float);
         SteamPlanet(const SteamPlanet&);
         void action(Explorer&) const;
         ~SteamPlanet();

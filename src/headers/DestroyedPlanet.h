@@ -1,5 +1,5 @@
-#ifndef __WATERPLANET_H__
-#define __WATERPLANET_H__
+#ifndef __DESTROYEDPLANET_H__
+#define __DESTROYEDPLANET_H__
 
 #include "./Planet.h"
 #include "./Explorer.h"

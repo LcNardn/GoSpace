@@ -33,7 +33,7 @@ void IndustryPlanet::makeRockets(Explorer& exp) const{
 
 }
 
-IndustryPlanet::IndustryPlanet(std::string _name, float _e, float _eSup, objType _min) : Planet(_name,numTot,Industry,_e), FirePlanet(_name,_eSup,_e), EarthPlanet(_name,_min,_e){
+IndustryPlanet::IndustryPlanet(std::string _name, float _eSup, objType _min, float _e) : Planet(_name,numTot,Industry,_e), FirePlanet(_name,_eSup,_e), EarthPlanet(_name,_min,_e){
     numTot++;
 }
 

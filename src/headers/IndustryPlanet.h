@@ -13,7 +13,7 @@ class IndustryPlanet : public FirePlanet, public EarthPlanet{
         void makeRockets(Explorer&) const;
     
     public:
-        IndustryPlanet(std::string,float,float,objType);
+        IndustryPlanet(std::string,float,objType,float);
         IndustryPlanet(const IndustryPlanet&);
         void action(Explorer&) const;
         ~IndustryPlanet();
