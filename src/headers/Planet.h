@@ -25,18 +25,22 @@ class Planet{
         Planet(const Planet&);
 
         // funzione di controllo
-        inline bool check(float) const;
+        bool check(float) const;
 
     public:
         // per gestire la disrtuzione
         bool destroy();
         bool regenerate(Explorer&);
 
+        // getter
+        inline pType getType() const {return type;}
+
         // le azioni specifiche dei pianeti vengono invocate con action
         virtual void action(Explorer&) const = 0;
 
         // per la stampa
         friend std::ostream& operator<<(std::ostream&,const Planet&);
+        virtual std::string toString() const;
 
         // distruttore
         virtual ~Planet();

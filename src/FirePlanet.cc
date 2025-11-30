@@ -39,4 +39,8 @@ void FirePlanet::action(Explorer& exp) const{
     
 }
 
+std::string FirePlanet::toString() const{
+    return Planet::toString() + " " + std::to_string(energySup);
+}
+
 FirePlanet::~FirePlanet(){ numTot--; }

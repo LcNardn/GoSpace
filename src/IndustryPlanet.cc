@@ -53,6 +53,10 @@ void IndustryPlanet::action(Explorer& exp) const{
 
 }
 
+std::string IndustryPlanet::toString() const {
+    return FirePlanet::toString() + " " + ((minType == mineral_2) ? "mineral_2" : "mineral_1");
+}
+
 IndustryPlanet::~IndustryPlanet(){
     numTot--;
 }

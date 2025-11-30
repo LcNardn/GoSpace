@@ -18,6 +18,7 @@ class FirePlanet : virtual public Planet{
         FirePlanet(std::string,float,float);
         FirePlanet(const FirePlanet&);
         void action(Explorer&) const;
+        std::string toString() const;
         ~FirePlanet();
 };
 

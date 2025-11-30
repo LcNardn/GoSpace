@@ -37,4 +37,8 @@ void EarthPlanet::action(Explorer& exp) const{
     
 }
 
+std::string EarthPlanet::toString() const {
+    return Planet::toString() + " " + (minType == mineral_1 ? "mineral_1" : "mineral_2");
+}
+
 EarthPlanet::~EarthPlanet(){ numTot--; }

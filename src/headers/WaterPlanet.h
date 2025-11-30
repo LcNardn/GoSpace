@@ -18,6 +18,7 @@ class WaterPlanet : virtual public Planet{
         WaterPlanet(std::string,int,float);
         WaterPlanet(const WaterPlanet&);
         void action(Explorer&) const;
+        std::string toString() const;
         ~WaterPlanet();
 };
 

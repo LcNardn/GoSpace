@@ -35,6 +35,10 @@ void SteamPlanet::action(Explorer& exp) const{
 
 }
 
+std::string SteamPlanet::toString() const {
+    return WaterPlanet::toString() + " " + std::to_string(energySup) + " " + std::to_string(capacityO);
+}
+
 SteamPlanet::~SteamPlanet(){
     numTot--;
 }

@@ -18,6 +18,7 @@ class SteamPlanet : public FirePlanet, public WaterPlanet {
         SteamPlanet(std::string,int,float,int,float);
         SteamPlanet(const SteamPlanet&);
         void action(Explorer&) const;
+        std::string toString() const;
         ~SteamPlanet();
 };
 

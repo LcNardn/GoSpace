@@ -20,6 +20,7 @@ class EarthPlanet : virtual public Planet {
         EarthPlanet(std::string,objType,float);
         EarthPlanet(const EarthPlanet&);
         void action(Explorer&) const;
+        std::string toString() const;
         ~EarthPlanet();
 };
 

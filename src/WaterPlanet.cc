@@ -34,4 +34,8 @@ void WaterPlanet::action(Explorer& exp) const{
     
 }
 
+std::string WaterPlanet::toString() const {
+    return Planet::toString() + " " + std::to_string(qFish);
+}
+
 WaterPlanet::~WaterPlanet(){ numTot--; }

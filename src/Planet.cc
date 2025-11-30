@@ -12,7 +12,7 @@ Planet::Planet(const Planet& _o) : name(_o.name), type(_o.type), id(_o.id), ener
     isDestroyed = _o.isDestroyed;
 }
 
-inline bool Planet::check(float energyExp) const{
+bool Planet::check(float energyExp) const{
     if (isDestroyed) { // non posso fare niente se il pianeta è distrutto o non ho energia a sufficienza
         std::cerr<<"Any action on "<<*this<<" cannot be done.\n";
         std::cout<<"The planet is destroyed. You need to regenerate it first.\n";
@@ -46,20 +46,39 @@ bool Planet::regenerate(Explorer& exp){
     } else return false;
 }
 
+std::string Planet::toString() const {
+    std::string typeS;
+    switch (type){
+        case Water: typeS.append("W"); break;
+        case Fire: typeS.append("F"); break;
+        case Earth: typeS.append("E"); break;
+        case Steam: typeS.append("S"); break;
+        case Industry: typeS.append("I"); break;
+        case Destroyed: typeS.append("D"); break;
+        case AsteroidT: typeS.append("A"); break;
+        default: typeS.append("U"); break;
+    }
+
+    if (isDestroyed){ // se salvo mentre un pianeta è distrutto, lo sarà per sempre
+        typeS.assign("D");
+    }
+
+    return typeS + " " + name + " " + std::to_string(energyNeed);
+}
+
 Planet::~Planet(){  }
 
 std::ostream& operator<<(std::ostream& out,const Planet& p){
     out<<"Planet: "<<p.name<<" (";
-    switch (p.type)
-    {
-    case Water: out<<"Wa"; break;
-    case Fire: out<<"Fi"; break;
-    case Earth: out<<"Ea"; break;
-    case Steam: out<<"St"; break;
-    case Industry: out<<"In"; break;
-    case Destroyed: out<<"De"; break;
-    case AsteroidT: out<<"As"; break;
-    default: out<<"Unkown"; break;
+    switch (p.type){
+        case Water: out<<"Wa"; break;
+        case Fire: out<<"Fi"; break;
+        case Earth: out<<"Ea"; break;
+        case Steam: out<<"St"; break;
+        case Industry: out<<"In"; break;
+        case Destroyed: out<<"De"; break;
+        case AsteroidT: out<<"As"; break;
+        default: out<<"Unkown"; break;
     }
     out<<","<<p.id.second<<") Currently"<<(p.isDestroyed ? " " : " not ")<<"destoyed.";
     return out;

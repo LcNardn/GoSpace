@@ -22,6 +22,7 @@ class Graph
         Graph(const std::vector<T>&, const std::vector<std::vector<int>>&);
         Graph(const std::list<T>&,const std::multimap<int,int>&);
         Graph(const Graph&);
+        Graph& operator=(const Graph&)=default;
 
         // move semantics visto che T potrebbero essere gestiti in maniera dinamica
         Graph(Graph&&)=default;
@@ -144,7 +145,7 @@ void Graph<T>::removeNode(int index){
 
     std::multimap<int,int> updated; // aggiorno le adiacenze in modo che siano corrette
 
-    std::for_each(adjs.begin(), adjs.end(), [&](const auto& p) {
+    std::for_each(adjs.begin(), adjs.end(), [&](const std::pair<int,int>& p) {
         int from = p.first > index ? p.first - 1 : p.first;
         int to = p.second > index ? p.second - 1 : p.second;
         updated.emplace(from, to);
