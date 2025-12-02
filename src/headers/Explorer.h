@@ -28,6 +28,10 @@ class Explorer{
         // costruttori
         Explorer();
         Explorer(const Explorer&);
+        Explorer(Explorer&&)=default;
+        Explorer& operator=(const Explorer&) = default;
+        Explorer& operator=(Explorer&&) = default;
+
 
         // getters
         int getOx() const;
