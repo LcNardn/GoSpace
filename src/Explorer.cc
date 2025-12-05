@@ -13,6 +13,12 @@ Explorer::Explorer(){
     oxygen=oxInit;
     energy=enInit;
     health=heInit;
+    inventory.insert({fish,0});
+    inventory.insert({food,0});
+    inventory.insert({mineral_1,0});
+    inventory.insert({mineral_2,0});
+    inventory.insert({rocket,0});
+    inventory.insert({no_Rocket,0});
 }
 
 Explorer::Explorer(const Explorer& o) : inventory(o.inventory) {

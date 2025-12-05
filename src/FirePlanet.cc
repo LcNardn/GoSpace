@@ -9,7 +9,6 @@ int FirePlanet::numTot=0;
 
 FirePlanet::FirePlanet(std::string _name,float _es,float _e) : Planet(_name,numTot,Fire,_e), energySup(_es){
     numTot++;
-    std::cout<<"Created FirePlanet: "<<*this<<std::endl;
 }
 
 FirePlanet::FirePlanet(const FirePlanet& _o) : Planet(_o), energySup(_o.energySup) {

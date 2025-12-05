@@ -12,7 +12,6 @@ objType EarthPlanet::chooseMineral(objType obj){
 
 EarthPlanet::EarthPlanet(std::string _name, objType _mineral, float _energy) : Planet(_name,numTot,Earth,_energy), minType(chooseMineral(_mineral)){
     numTot++;
-    std::cout<<"Created EarthPlanet: "<<*this<<std::endl;
 }
 
 EarthPlanet::EarthPlanet(const EarthPlanet& _o) : Planet(_o), minType(_o.minType){

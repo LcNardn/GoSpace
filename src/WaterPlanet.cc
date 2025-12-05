@@ -8,7 +8,6 @@ int WaterPlanet::numTot = 0;
 
 WaterPlanet::WaterPlanet(std::string _name, int _q, float _e) : Planet(_name,numTot,Water,_e), qFish(_q){
     numTot++;
-    std::cout<<"Created WaterPlanet: "<<*this<<std::endl;
 }
 
 WaterPlanet::WaterPlanet(const WaterPlanet& _o) : Planet(_o), qFish(_o.qFish){

@@ -19,7 +19,6 @@
 Planet* getNewPlanet(const std::string& line) { // throws domain_error, runtime_error
 
     Planet* retVal = NULL;
-
     
     // cerco il tipo di pianeta
     int start=0;
@@ -132,6 +131,12 @@ Galaxy::Galaxy(std::fstream& _in, std::string _save, std::unique_ptr<Explorer>& 
     Planet* pp; // non serve l'inizializzazione
     std::getline(_in,line);
     while ( line[0] != '%'){ // prima della linea %%% ci sono le definizioni dei pianeti, mentre dopo c'è la mappa
+        
+        if (line.empty()){
+            std::getline(_in,line);
+            continue;
+        }
+        
         try {
             pp = getNewPlanet(line);
         } catch (std::domain_error e) {
@@ -145,12 +150,12 @@ Galaxy::Galaxy(std::fstream& _in, std::string _save, std::unique_ptr<Explorer>& 
             pp = new DestroyedPlanet();
         }
         map+=pp;
+        std::getline(_in,line);
     }
 
     // inizio a leggere i collegamenti
-    unsigned int m,from,to;
-    _in>>m;
-    for(int i=0;i<m;i++){
+    unsigned int from,to;
+    while (!_in.eof()){
         _in>>from>>to;
         map+={from,to};
     }
@@ -247,23 +252,30 @@ void Galaxy::spawnAsteroid(){
 void Galaxy::destroyAsteroid(){
 
     bool done=false;
+
+    const std::vector<int> adj = map.adj(currentPlanet);
     
-    std::for_each(map.adj(currentPlanet).begin(),map.adj(currentPlanet).end(),
-    [&](int adj) {
-        if (map[adj]->getType() == AsteroidT && !done){
-            try {
-                *exp-=rocket;
-                map-=map[adj];
-                done = true;
-                exp->consumeEnergy(4.0);
-            } catch (std::logic_error e){
-                std::cerr<<e.what()<<std::endl;
-                std::cout<<"There are no rockets to shoot.\n";
-            } catch (...){
-                std::cerr<<"An unknown error has occurred.\n";
+    std::for_each(adj.begin(),adj.end(),
+        [&](int adj) {
+            if (map[adj]->getType() == AsteroidT && !done){
+                try {
+                    *exp-=rocket;
+                    // devo togliere il nodo e collegare i due suoi vicini
+                    const std::vector<int> adjAsteroid = map.adj(adj);
+                    // l'asteroide ha sempre due vicini
+                    map+={adjAsteroid[0],adjAsteroid[1]};
+                    // tolgo il nodo
+                    map-=map[adj];
+                    done = true;
+                    exp->consumeEnergy(4.0);
+                } catch (std::logic_error e){
+                    std::cerr<<e.what()<<std::endl;
+                    std::cout<<"There are no rockets to shoot.\n";
+                } catch (...){
+                    std::cerr<<"An unknown error has occurred.\n";
+                }
             }
-        }
-    });
+        });
 
 }
 
@@ -302,19 +314,21 @@ void Galaxy::travel(){ // throws logic_error
     bool visited[map.nNodes()] = {};
     std::queue<int> Q;
     std::map<int,int> predecessor; // mi serve per capire che percorso faccio e quanto danno prendo
-
+    
     Q.push(currentPlanet);
     predecessor[currentPlanet] = currentPlanet;
     visited[currentPlanet] = true;
 
     while (!Q.empty()) {
         int index = Q.front(); Q.pop();
-        to.push_back(index);
+
+        if(map[index]->getType()!=AsteroidT) to.push_back(index);
 
         for(const auto& adj : map.adj(index)){
             if (!visited[adj] && (index==currentPlanet || map[index]->getType() == AsteroidT) ){
                 Q.push(adj);
                 predecessor[adj] = index;
+                visited[adj]=true;
             }
         }
     }
@@ -323,7 +337,7 @@ void Galaxy::travel(){ // throws logic_error
     std::cout<<"Planets:\n ";
     int i=1;
     for (const auto& des : to){
-        std::cout<<"\t"<<i<<": "<<map[des]<<std::endl;
+        std::cout<<"\t"<<i<<": "<<*map[des]<<std::endl;
         i++;
     }
 
@@ -355,21 +369,28 @@ Galaxy::~Galaxy(){
     if(!save){
         std::cerr<<"Error in saving the game.\n";
     } else { // salvo lo stato della galassia nel file e poi dealloco tutto quello che serve
-
+        
         // pianeti
         for(int i=0;i<map.nNodes();i++){
             save<<map[i]->toString()<<std::endl;
         }
-
+        
         save<<"%%%\n";
-
+        
         // collegamenti
         for(int i=0;i<map.nNodes();i++){
-            for(auto it=map.adj(i).begin();it!=map.adj(i).end();it++){
-                save<<*it<<" ";
+            const std::vector<int> adj = map.adj(i);
+            for(auto it = adj.begin(); it != adj.end(); it++){
+                save<<i<<" "<<*it<<"\n";
             }
-            save<<std::endl;
         }
+
+        // // collegamenti
+        // for(int i=0;i<map.nNodes();i++){
+        //     for(const auto it : map.adj(i)){
+        //         save<<i<<" "<<it<<"\n";
+        //     }
+        // }
     }
 
     // libero la memoria, exp si arrangia a gestire la deallocazione poichè è uno smart pointer
@@ -382,11 +403,13 @@ Galaxy::~Galaxy(){
 std::ostream& operator<<(std::ostream& out, const Galaxy& g){
 
     out<<*(g.exp);
-    out<<"\nCurrently in "<<g.map[g.currentPlanet]<<std::endl;
-    out<<"Neighbors:\n";
+    out<<"\n\nCurrently in "<<*g.map[g.currentPlanet]<<std::endl;
+    out<<"\nNeighbors:\n";
     for (const auto& v : g.map.adj(g.currentPlanet)){
-        out<<"\t"<<*g.map[v]<<"\n";
+        if (g.map[v]->getType() != AsteroidT)
+            out<<"\t"<<*g.map[v]<<"\n";
     }
+    out<<std::endl;
 
     return out;
 

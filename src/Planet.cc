@@ -5,7 +5,6 @@
 
 Planet::Planet(std::string _name, int _n, pType _t, float _energy) : name(_name), type(_t), id({_t,_n}), energyNeed(_energy) {
     isDestroyed = (_t==Destroyed);
-    std::cout<<"Created planet: "<<*this<<std::endl;
 }
 
 Planet::Planet(const Planet& _o) : name(_o.name), type(_o.type), id(_o.id), energyNeed(_o.energyNeed) {

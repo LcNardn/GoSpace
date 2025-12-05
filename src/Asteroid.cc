@@ -13,7 +13,6 @@ Asteroid::Asteroid() : Planet("Asteroid",numTot,AsteroidT,4.0) {
     srand(time(NULL));
     damage = (rand()%20)+1;
     damage += (rand()%99)*0.01;
-    std::cout<<"Creating asteroid: "<<*this<<std::endl;
 }
 
 Asteroid::Asteroid(const Asteroid& _o) : Planet(_o) {
