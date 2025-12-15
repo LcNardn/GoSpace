@@ -6,26 +6,26 @@
 
 int EarthPlanet::numTot=0;
 
-objType EarthPlanet::chooseMineral(objType obj){
+objType EarthPlanet::chooseMineral(objType obj) noexcept {
     return ((obj != mineral_1 && obj != mineral_2) ? mineral_1 : obj);
 }
 
-EarthPlanet::EarthPlanet(std::string _name, objType _mineral, float _energy) : Planet(_name,numTot,Earth,_energy), minType(chooseMineral(_mineral)){
+EarthPlanet::EarthPlanet(std::string _name, objType _mineral, float _energy) noexcept : Planet(_name,numTot,Earth,_energy), minType(chooseMineral(_mineral)){
     numTot++;
 }
 
-EarthPlanet::EarthPlanet(const EarthPlanet& _o) : Planet(_o), minType(_o.minType){
+EarthPlanet::EarthPlanet(const EarthPlanet& _o) noexcept : Planet(_o), minType(_o.minType){
     numTot++;
 }
 
-void EarthPlanet::mining(Explorer& exp) const{
+void EarthPlanet::mining(Explorer& exp) const noexcept {
 
     exp+=minType;
     std::cout<<"You have mined a mineral!\n";
 
 }
 
-void EarthPlanet::action(Explorer& exp) const{
+void EarthPlanet::action(Explorer& exp) const noexcept {
 
     if(!check(exp.getEn())) return;
 
@@ -36,8 +36,8 @@ void EarthPlanet::action(Explorer& exp) const{
     
 }
 
-std::string EarthPlanet::toString() const {
+std::string EarthPlanet::toString() const noexcept {
     return Planet::toString() + " " + (minType == mineral_1 ? "mineral_1" : "mineral_2");
 }
 
-EarthPlanet::~EarthPlanet(){ numTot--; }
+EarthPlanet::~EarthPlanet() noexcept { numTot--; }

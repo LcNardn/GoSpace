@@ -3,15 +3,15 @@
 #include <string>
 #include <iostream>
 
-Planet::Planet(std::string _name, int _n, pType _t, float _energy) : name(_name), type(_t), id({_t,_n}), energyNeed(_energy) {
+Planet::Planet(std::string _name, int _n, pType _t, float _energy) noexcept : name(_name), type(_t), id({_t,_n}), energyNeed(_energy) {
     isDestroyed = (_t==Destroyed);
 }
 
-Planet::Planet(const Planet& _o) : name(_o.name), type(_o.type), id(_o.id), energyNeed(_o.energyNeed) {
+Planet::Planet(const Planet& _o) noexcept : name(_o.name), type(_o.type), id(_o.id), energyNeed(_o.energyNeed) {
     isDestroyed = _o.isDestroyed;
 }
 
-bool Planet::check(float energyExp) const{
+bool Planet::check(float energyExp) const noexcept{
     if (isDestroyed) { // non posso fare niente se il pianeta è distrutto o non ho energia a sufficienza
         std::cerr<<"Any action on "<<*this<<" cannot be done.\n";
         std::cout<<"The planet is destroyed. You need to regenerate it first.\n";
@@ -23,14 +23,14 @@ bool Planet::check(float energyExp) const{
     } else return true;
 }
 
-bool Planet::destroy(){
+bool Planet::destroy() noexcept{
     if (!isDestroyed){
         isDestroyed=true;
         return true;
     } else return false;
 }
 
-bool Planet::regenerate(Explorer& exp){
+bool Planet::regenerate(Explorer& exp) noexcept{
     if (isDestroyed && type!=Destroyed){
         try {
             exp-=no_Rocket;
@@ -45,27 +45,29 @@ bool Planet::regenerate(Explorer& exp){
     } else return false;
 }
 
-std::string Planet::toString() const {
+std::string Planet::toString() const  noexcept{
     std::string typeS;
     switch (type){
-        case Water: typeS.append("W"); break;
-        case Fire: typeS.append("F"); break;
-        case Earth: typeS.append("E"); break;
-        case Steam: typeS.append("S"); break;
-        case Industry: typeS.append("I"); break;
-        case Destroyed: typeS.append("D"); break;
-        case AsteroidT: typeS.append("A"); break;
-        default: typeS.append("U"); break;
+        case Water: typeS.assign("W"); break;
+        case Fire: typeS.assign("F"); break;
+        case Earth: typeS.assign("E"); break;
+        case Steam: typeS.assign("S"); break;
+        case Industry: typeS.assign("I"); break;
+        case Destroyed: typeS.assign("D"); break;
+        case AsteroidT: typeS.assign("A"); break;
+        default: typeS.assign("U"); break;
     }
 
-    if (isDestroyed){ // se salvo mentre un pianeta è distrutto, lo sarà per sempre
-        typeS.assign("D");
+    if (isDestroyed){ // se salvo mentre un pianeta è distrutto, lo segalo
+        typeS.append(" d");
+    } else { // altrimenti uso un carattere per rendere uniforme le linee
+        typeS.append(" i");
     }
 
     return typeS + " " + name + " " + std::to_string(energyNeed);
 }
 
-Planet::~Planet(){  }
+Planet::~Planet() noexcept{  }
 
 std::ostream& operator<<(std::ostream& out,const Planet& p){
     out<<"Planet: "<<p.name<<" (";

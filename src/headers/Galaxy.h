@@ -17,33 +17,35 @@ class Galaxy {
         const std::string saveFile;
         std::unique_ptr<Explorer> exp; // impongo che exp sia unico per ogni galassia
         Graph<Planet*> map;
+        std::weak_ptr<Planet> destroyedPlanet;
 
     public:
         // costruttori
         Galaxy()=delete;
-        Galaxy(std::fstream&,std::string,std::unique_ptr<Explorer>&,int=0); // throws domain_error
-        Galaxy(const Galaxy&);
-        Galaxy& operator=(const Galaxy&);
+        Galaxy(std::fstream&,std::string,std::unique_ptr<Explorer>&,std::weak_ptr<Planet>); // throws domain_error
+        Galaxy(const Galaxy&) noexcept;
+        Galaxy& operator=(const Galaxy&) noexcept;
         
         // move semantics visto che gestisco risorse dinamiche
-        Galaxy(Galaxy&&);
-        Galaxy& operator=(Galaxy&&);
+        Galaxy(Galaxy&&) noexcept;
+        Galaxy& operator=(Galaxy&&) noexcept;
 
         // metodi per gli asteroidi
-        void spawnAsteroid();
-        void destroyAsteroid();
+        void spawnAsteroid() noexcept;
+        void destroyAsteroid() noexcept;
 
         // per gestire l'esplorazione
         void beginTurn(); // throws logic_error
-        void action() const;
-        void regenerate() const;
+        void action() const noexcept;
+        void regenerate() const noexcept;
         void travel(); // throws logic_error
+        void repair() noexcept;
 
         // stampa i pianeti adiacenti
         friend std::ostream& operator<<(std::ostream&,const Galaxy&);
 
         // distruttore
-        ~Galaxy();
+        ~Galaxy() noexcept;
 };
 
 std::ostream& operator<<(std::ostream&,const Galaxy&);

@@ -7,15 +7,15 @@
 
 int FirePlanet::numTot=0;
 
-FirePlanet::FirePlanet(std::string _name,float _es,float _e) : Planet(_name,numTot,Fire,_e), energySup(_es){
+FirePlanet::FirePlanet(std::string _name,float _es,float _e) noexcept : Planet(_name,numTot,Fire,_e), energySup(_es){
     numTot++;
 }
 
-FirePlanet::FirePlanet(const FirePlanet& _o) : Planet(_o), energySup(_o.energySup) {
+FirePlanet::FirePlanet(const FirePlanet& _o) noexcept : Planet(_o), energySup(_o.energySup) {
     numTot++;
 }
 
-void FirePlanet::cooking(Explorer& exp) const{
+void FirePlanet::cooking(Explorer& exp) const noexcept {
     try {
         exp-=fish;
         exp+=food;
@@ -28,7 +28,7 @@ void FirePlanet::cooking(Explorer& exp) const{
     }
 }
 
-void FirePlanet::action(Explorer& exp) const{
+void FirePlanet::action(Explorer& exp) const noexcept {
 
     if(!check(exp.getEn()-energySup)) return; // energyNeed + energySup < exp.getEn() <=> energyNeed < exp.getEn() - energySup
 
@@ -38,8 +38,8 @@ void FirePlanet::action(Explorer& exp) const{
     
 }
 
-std::string FirePlanet::toString() const{
+std::string FirePlanet::toString() const noexcept {
     return Planet::toString() + " " + std::to_string(energySup);
 }
 
-FirePlanet::~FirePlanet(){ numTot--; }
+FirePlanet::~FirePlanet() noexcept { numTot--; }

@@ -11,14 +11,14 @@ class WaterPlanet : virtual public Planet{
         const int qFish;
     
     protected:
-        void fishing(Explorer&) const;
+        void fishing(Explorer&) const noexcept;
 
     public:
         WaterPlanet()=delete;
-        WaterPlanet(std::string,int,float);
-        WaterPlanet(const WaterPlanet&);
-        void action(Explorer&) const;
-        std::string toString() const;
+        WaterPlanet(std::string,int,float) noexcept;
+        WaterPlanet(const WaterPlanet&) noexcept;
+        void action(Explorer&) const noexcept;
+        std::string toString() const noexcept;
         ~WaterPlanet();
 };
 

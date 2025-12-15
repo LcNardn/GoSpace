@@ -9,7 +9,7 @@ const float Explorer::heInit=100.0;
 const int Explorer::maxCapacity=5;
 
 // costruttori
-Explorer::Explorer(){
+Explorer::Explorer() noexcept {
     oxygen=oxInit;
     energy=enInit;
     health=heInit;
@@ -21,22 +21,22 @@ Explorer::Explorer(){
     inventory.insert({no_Rocket,0});
 }
 
-Explorer::Explorer(const Explorer& o) : inventory(o.inventory) {
+Explorer::Explorer(const Explorer& o) noexcept : inventory(o.inventory) {
     oxygen=o.oxygen;
     energy=o.energy;
     health=o.health;
 }
 
 // getters
-int Explorer::getOx() const{ return oxygen; }
+int Explorer::getOx() const noexcept { return oxygen; }
 
-float Explorer::getEn() const{ return energy; }
+float Explorer::getEn() const noexcept { return energy; }
 
-float Explorer::getHe() const{ return health; }
+float Explorer::getHe() const noexcept { return health; }
 
 
 // inventario
-Explorer& Explorer::operator+=(objType obj){
+Explorer& Explorer::operator+=(objType obj) noexcept {
     if (inventory[obj] < maxCapacity ){
         inventory[obj]++;
     }
@@ -50,8 +50,8 @@ Explorer& Explorer::operator-=(objType obj){
     return *this;
 }
 
-bool Explorer::shootRocket(){
-    if (inventory[rocket] > 0){
+bool Explorer::shootRocket() noexcept {
+    if (inventory[rocket] > 0 && energy){ // da finire
         *this-=rocket;
         return true;
     } else return false;
@@ -63,7 +63,7 @@ void Explorer::damageShip(float dmg){
     if (health <= 0) throw std::logic_error("No more health");
 }
 
-bool Explorer::repairShip(){
+bool Explorer::repairShip() noexcept {
     while(inventory[mineral_2]>0 && (heInit-health) > DELTA && energy>0){
         health+=((heInit-health)*0.5); // cura 20% dei danni subiti
         *this-=mineral_2;
@@ -92,13 +92,13 @@ void Explorer::rest(){
     }
 }
 
-void Explorer::consumeEnergy(float en){
+void Explorer::consumeEnergy(float en) noexcept {
     energy-=en;
     if (energy < 0.0) energy=0.0;
 }
 
 // oxygen
-Explorer Explorer::operator++(){
+Explorer Explorer::operator++() noexcept {
     oxygen = (oxygen+1 > oxInit ? oxInit : oxygen+1);
     return *this;
 }
@@ -109,7 +109,7 @@ Explorer Explorer::operator--(){
     return *this;
 }
 
-Explorer::~Explorer(){  }
+Explorer::~Explorer() noexcept {  }
 
 std::ostream& operator<<(std::ostream& out, const Explorer& ex){
     out<<"Explorer:\n\tShip health: "<<ex.health<<"\n\tEnergy: "<<ex.energy<<"\n\tOxygen: "<<ex.oxygen;

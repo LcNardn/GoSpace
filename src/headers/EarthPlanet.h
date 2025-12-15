@@ -9,19 +9,19 @@ class EarthPlanet : virtual public Planet {
     private:
         static int numTot;
 
-        objType chooseMineral(objType);
+        objType chooseMineral(objType) noexcept;
     
     protected:
         const objType minType;
-        void mining(Explorer&) const;
+        void mining(Explorer&) const noexcept;
     
     public:
         EarthPlanet()=delete;
-        EarthPlanet(std::string,objType,float);
-        EarthPlanet(const EarthPlanet&);
-        void action(Explorer&) const;
-        std::string toString() const;
-        ~EarthPlanet();
+        EarthPlanet(std::string,objType,float) noexcept;
+        EarthPlanet(const EarthPlanet&) noexcept;
+        void action(Explorer&) const noexcept;
+        std::string toString() const noexcept;
+        ~EarthPlanet() noexcept;
 };
 
 #endif

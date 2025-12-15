@@ -21,29 +21,29 @@ class Planet{
         const float energyNeed;
         //costruttori
         Planet()=delete; // non posso creare un pianeta senza niente
-        Planet(std::string,int,pType,float);
-        Planet(const Planet&);
+        Planet(std::string,int,pType,float) noexcept;
+        Planet(const Planet&) noexcept;
 
         // funzione di controllo
-        bool check(float) const;
+        bool check(float) const noexcept;
 
     public:
         // per gestire la disrtuzione
-        bool destroy();
-        bool regenerate(Explorer&);
+        bool destroy() noexcept;
+        bool regenerate(Explorer&) noexcept;
 
         // getter
-        inline pType getType() const {return type;}
+        inline pType getType() const noexcept {return type;}
 
         // le azioni specifiche dei pianeti vengono invocate con action
         virtual void action(Explorer&) const = 0;
 
         // per la stampa
         friend std::ostream& operator<<(std::ostream&,const Planet&);
-        virtual std::string toString() const;
+        virtual std::string toString() const noexcept;
 
         // distruttore
-        virtual ~Planet();
+        virtual ~Planet() noexcept;
 };
 
 std::ostream& operator<<(std::ostream&,const Planet&);

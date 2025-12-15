@@ -8,14 +8,14 @@
 
 int Asteroid::numTot=0;
 
-Asteroid::Asteroid() : Planet("Asteroid",numTot,AsteroidT,4.0) {
+Asteroid::Asteroid() noexcept : Planet("Asteroid",numTot,AsteroidT,4.0) {
     numTot++;
     srand(time(NULL));
     damage = (rand()%20)+1;
     damage += (rand()%99)*0.01;
 }
 
-Asteroid::Asteroid(const Asteroid& _o) : Planet(_o) {
+Asteroid::Asteroid(const Asteroid& _o) noexcept : Planet(_o) {
     numTot++;
     damage=_o.damage;
 }
@@ -35,6 +35,6 @@ void Asteroid::action(Explorer& exp) const {
 
 }
 
-Asteroid::~Asteroid(){
+Asteroid::~Asteroid() noexcept{
     numTot--;
 }

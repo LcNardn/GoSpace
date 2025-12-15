@@ -26,38 +26,38 @@ class Explorer{
     public:
 
         // costruttori
-        Explorer();
-        Explorer(const Explorer&);
-        Explorer(Explorer&&)=default;
-        Explorer& operator=(const Explorer&) = default;
-        Explorer& operator=(Explorer&&) = default;
+        Explorer() noexcept;
+        Explorer(const Explorer&) noexcept;
+        Explorer(Explorer&&) noexcept =default;
+        Explorer& operator=(const Explorer&) noexcept = default;
+        Explorer& operator=(Explorer&&) noexcept = default;
 
 
         // getters
-        int getOx() const;
-        float getEn() const;
-        float getHe() const;
+        int getOx() const noexcept;
+        float getEn() const noexcept;
+        float getHe() const noexcept;
 
         // inventario
-        Explorer& operator+=(objType);
+        Explorer& operator+=(objType) noexcept;
         Explorer& operator-=(objType); // throws logic_error
-        bool shootRocket();
+        bool shootRocket() noexcept;
 
         // health
         void damageShip(float); // throws logic_error
-        bool repairShip();
+        bool repairShip() noexcept;
 
         // energy
         void rest(); // throws logic_error
-        void consumeEnergy(float);
+        void consumeEnergy(float) noexcept;
 
         // oxygen
-        Explorer operator++();
+        Explorer operator++() noexcept;
         Explorer operator--(); // throws logic_error
 
         friend std::ostream& operator<<(std::ostream&,const Explorer&);
 
-        ~Explorer();
+        ~Explorer() noexcept;
 };
 
 std::ostream& operator<<(std::ostream&,const Explorer&);

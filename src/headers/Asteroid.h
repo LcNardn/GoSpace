@@ -10,10 +10,10 @@ class Asteroid : public Planet {
         float damage;
     public:
         // nei metodi non serve toString perchè non aggunge niente di nuovo rispetto al metodo di Planet
-        Asteroid();
-        Asteroid(const Asteroid&);
+        Asteroid() noexcept;
+        Asteroid(const Asteroid&) noexcept;
         void action(Explorer&) const; // throws logic_error
-        ~Asteroid();
+        ~Asteroid() noexcept;
 };
 
 #endif

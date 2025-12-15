@@ -9,7 +9,7 @@
 
 int IndustryPlanet::numTot=0;
 
-void IndustryPlanet::makeRockets(Explorer& exp) const{
+void IndustryPlanet::makeRockets(Explorer& exp) const  noexcept{
     
     objType in,out;
     if (minType == mineral_1){ // creo il razzo con il materiale che non posso prendere dal pianeta stesso
@@ -33,15 +33,15 @@ void IndustryPlanet::makeRockets(Explorer& exp) const{
 
 }
 
-IndustryPlanet::IndustryPlanet(std::string _name, float _eSup, objType _min, float _e) : Planet(_name,numTot,Industry,_e), FirePlanet(_name,_eSup,_e), EarthPlanet(_name,_min,_e){
+IndustryPlanet::IndustryPlanet(std::string _name, float _eSup, objType _min, float _e) noexcept : Planet(_name,numTot,Industry,_e), FirePlanet(_name,_eSup,_e), EarthPlanet(_name,_min,_e){
     numTot++;
 }
 
-IndustryPlanet::IndustryPlanet(const IndustryPlanet& _o) : Planet(_o), FirePlanet(_o), EarthPlanet(_o) {
+IndustryPlanet::IndustryPlanet(const IndustryPlanet& _o) noexcept : Planet(_o), FirePlanet(_o), EarthPlanet(_o) {
     numTot++;
 }
 
-void IndustryPlanet::action(Explorer& exp) const{
+void IndustryPlanet::action(Explorer& exp) const noexcept{
 
     if (!check(exp.getEn()-energySup)) return;
 
@@ -53,10 +53,10 @@ void IndustryPlanet::action(Explorer& exp) const{
 
 }
 
-std::string IndustryPlanet::toString() const {
+std::string IndustryPlanet::toString() const  noexcept{
     return FirePlanet::toString() + " " + ((minType == mineral_2) ? "mineral_2" : "mineral_1");
 }
 
-IndustryPlanet::~IndustryPlanet(){
+IndustryPlanet::~IndustryPlanet() noexcept{
     numTot--;
 }

@@ -19,35 +19,35 @@ class Graph
         public:
         //costruttori
         Graph()=default;
-        Graph(const std::vector<T>&, const std::vector<std::vector<int>>&);
-        Graph(const std::list<T>&,const std::multimap<int,int>&);
-        Graph(const Graph&);
-        Graph& operator=(const Graph&)=default;
+        Graph(const std::vector<T>&, const std::vector<std::vector<int>>&) noexcept;
+        Graph(const std::list<T>&,const std::multimap<int,int>&) noexcept;
+        Graph(const Graph&) noexcept;
+        Graph& operator=(const Graph&) noexcept =default;
 
         // move semantics visto che T potrebbero essere gestiti in maniera dinamica
-        Graph(Graph&&)=default;
-        Graph& operator=(Graph&&)=default;
+        Graph(Graph&&)noexcept=default;
+        Graph& operator=(Graph&&)noexcept=default;
         
         //modifiche
-        void addNode(T);
-        void addEdge(int,int);
-        Graph<T>& operator+=(T);
-        Graph<T>& operator+=(std::pair<int,int>);
-        void addConnectedNode(T,std::vector<int>);
+        void addNode(T) noexcept;
+        void addEdge(int,int) noexcept;
+        Graph<T>& operator+=(T) noexcept;
+        Graph<T>& operator+=(std::pair<int,int>) noexcept;
+        void addConnectedNode(T,std::vector<int>) noexcept;
 
-        void removeEdge(int,int);
-        void removeNode(int);
-        Graph<T>& operator-=(T);
-        Graph<T>& operator-=(std::pair<int,int>);
+        void removeEdge(int,int) noexcept;
+        void removeNode(int) noexcept;
+        Graph<T>& operator-=(T) noexcept;
+        Graph<T>& operator-=(std::pair<int,int>) noexcept;
 
         //accessi
-        int nNodes() const;
-        int getPos(const T&) const;
-        T& operator[](int); // throws logic_error
-        const T& operator[](int) const; // throws logic_error
-        const std::vector<int> adj(int) const; // throws logic_error
+        inline int nNodes() const noexcept;
+        int getPos(const T&) const noexcept;
+        T& operator[](int); // throws out_of_range
+        const T& operator[](int) const; // throws out_of_range
+        const std::vector<int> adj(int) const; // throws out_of_range
 
-        ~Graph();
+        ~Graph() noexcept;
 };
 
 template<typename T>
@@ -63,7 +63,7 @@ void Graph<T>::removeOneEdge(int from,int to){
 }
 
 template <typename T>
-Graph<T>::Graph(const std::vector<T>& n, const std::vector<std::vector<int>>& a) : nodes(n.begin(),n.end()) {
+Graph<T>::Graph(const std::vector<T>& n, const std::vector<std::vector<int>>& a) noexcept : nodes(n.begin(),n.end()) {
 
     int minLenght = (a.size() < n.size() ? a.size() : n.size()); // prendo il minimo per evitare incorrettezze
     
@@ -75,42 +75,53 @@ Graph<T>::Graph(const std::vector<T>& n, const std::vector<std::vector<int>>& a)
 }
 
 template <typename T>
-Graph<T>::Graph(const std::list<T>& n,const std::multimap<int,int>& a) : nodes(n), adjs(a) {  }
+Graph<T>::Graph(const std::list<T>& n,const std::multimap<int,int>& a) noexcept : nodes(n), adjs(a) {  }
 
 template <typename T>
-Graph<T>::Graph(const Graph& o){
+Graph<T>::Graph(const Graph& o) noexcept{
     if (this != &o) {nodes=o.nodes; adjs=o.adjs;}
 }
 
 template <typename T>
-void Graph<T>::addNode(T newNode){
+void Graph<T>::addNode(T newNode) noexcept{
 
     nodes.push_back(newNode); // aggiungo il nuovo nodo
 
 }
 
 template <typename T>
-void Graph<T>::addEdge(int a,int b){
-    if( a<nodes.size() && b<nodes.size()){
+void Graph<T>::addEdge(int a,int b) noexcept{
+
+    // devo controllare se i nodi esistono
+
+    if (a>=nodes.size() || b>=nodes.size() || a<0 || b<0) return;
+
+    // devo vedere se l'arco è già presente
+
+    auto beginend = adjs.equal_range(a); // faccio la ricerca con a ma sarebbe stato lo stesso anche con b
+
+    int skip = count_if(beginend.first,beginend.second,[b](const std::pair<int,int> p){return p.second==b;}); // conto quante b sono già collegate con a
+
+    if(skip<1){
         adjs.emplace(a,b);
         adjs.emplace(b,a);
     }
 }
 
 template <typename T>
-Graph<T>& Graph<T>::operator+=(T newN){
+Graph<T>& Graph<T>::operator+=(T newN) noexcept{
     addNode(newN);
     return *this;
 }
 
 template <typename T>
-Graph<T>& Graph<T>::operator+=(std::pair<int,int> edge){
+Graph<T>& Graph<T>::operator+=(std::pair<int,int> edge) noexcept{
     addEdge(edge.first,edge.second);
     return *this;
 }
 
 template <typename T>
-void Graph<T>::addConnectedNode(T newNode,std::vector<int> neighbors){
+void Graph<T>::addConnectedNode(T newNode,std::vector<int> neighbors) noexcept{
     addNode(newNode);
     for(int i : neighbors){
         addEdge(nodes.size()-1,i); // nodes.size()-1 è il nuovo nodo appena aggiunto
@@ -118,7 +129,7 @@ void Graph<T>::addConnectedNode(T newNode,std::vector<int> neighbors){
 }
 
 template <typename T>
-void Graph<T>::removeEdge(int a,int b){
+void Graph<T>::removeEdge(int a,int b) noexcept{
     if( a<nodes.size() && b<nodes.size()){
         removeOneEdge(b,a);
         removeOneEdge(a,b);
@@ -126,7 +137,7 @@ void Graph<T>::removeEdge(int a,int b){
 }
 
 template<typename T>
-void Graph<T>::removeNode(int index){
+void Graph<T>::removeNode(int index) noexcept{
 
     if (index >= nodes.size() || index<0) return;
 
@@ -145,7 +156,7 @@ void Graph<T>::removeNode(int index){
 
     std::multimap<int,int> updated; // aggiorno le adiacenze in modo che siano corrette
 
-    std::for_each(adjs.begin(), adjs.end(), [&](const std::pair<int,int>& p) {
+    std::for_each(adjs.begin(), adjs.end(), [&updated,index](const std::pair<int,int>& p) {
         int from = p.first > index ? p.first - 1 : p.first;
         int to = p.second > index ? p.second - 1 : p.second;
         updated.emplace(from, to);
@@ -155,24 +166,24 @@ void Graph<T>::removeNode(int index){
 }
 
 template<typename T>
-Graph<T>& Graph<T>::operator-=(T node){
+Graph<T>& Graph<T>::operator-=(T node) noexcept{
     removeNode(getPos(node));
     return *this;
 }
 
 template<typename T>
-Graph<T>& Graph<T>::operator-=(std::pair<int,int> edge){
+Graph<T>& Graph<T>::operator-=(std::pair<int,int> edge) noexcept{
     removeEdge(edge.first,edge.second);
     return *this;
 }
 
 template<typename T>
-int Graph<T>::nNodes() const{
+int Graph<T>::nNodes() const noexcept{
     return nodes.size();
 }
 
 template<typename T>
-int Graph<T>::getPos(const T& node) const{
+int Graph<T>::getPos(const T& node) const noexcept{
     for (int i=0;i<nodes.size();i++){
         if ((*this)[i]==node){
             return i;
@@ -187,7 +198,7 @@ T& Graph<T>::operator[](int index){
         auto it = nodes.begin();
         std::advance(it,index);
         return *it;
-    } else throw std::logic_error("Node does not exist");
+    } else throw std::out_of_range("Node does not exist");
 }
 
 template<typename T>
@@ -196,7 +207,7 @@ const T& Graph<T>::operator[](int index) const{
         auto it = nodes.begin();
         std::advance(it,index);
         return *it;
-    } else throw std::logic_error("Node does not exist");
+    } else throw std::out_of_range("Node does not exist");
 }
 
 template<typename T>
@@ -212,10 +223,10 @@ const std::vector<int> Graph<T>::adj(int index) const{
         }
 
         return ret;
-    } else throw std::logic_error("Node does not exist");
+    } else throw std::out_of_range("Node does not exist");
 }
 
 template <typename T>
-Graph<T>::~Graph(){     }
+Graph<T>::~Graph() noexcept{     }
 
 #endif

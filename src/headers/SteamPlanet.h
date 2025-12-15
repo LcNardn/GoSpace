@@ -11,14 +11,14 @@ class SteamPlanet : public FirePlanet, public WaterPlanet {
         static int numTot;
         const int capacityO;
 
-        void replentishO(Explorer&) const;
+        void replentishO(Explorer&) const noexcept;
     
     public:
         SteamPlanet()=delete;
-        SteamPlanet(std::string,int,float,int,float);
-        SteamPlanet(const SteamPlanet&);
-        void action(Explorer&) const;
-        std::string toString() const;
+        SteamPlanet(std::string,int,float,int,float) noexcept;
+        SteamPlanet(const SteamPlanet&) noexcept;
+        void action(Explorer&) const noexcept;
+        std::string toString() const noexcept;
         ~SteamPlanet();
 };
 

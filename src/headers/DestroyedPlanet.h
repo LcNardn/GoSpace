@@ -6,12 +6,10 @@
 #include <string>
 
 class DestroyedPlanet : public Planet {
-    private:
-        static int numTot;
     public:
-        DestroyedPlanet();
-        void action(Explorer&) const;
-        ~DestroyedPlanet();
+        DestroyedPlanet() noexcept;
+        void action(Explorer&) const noexcept;
+        ~DestroyedPlanet() noexcept;
 };
 
 #endif

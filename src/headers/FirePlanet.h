@@ -11,15 +11,15 @@ class FirePlanet : virtual public Planet{
     
     protected:
         const float energySup;
-        void cooking(Explorer&) const;
+        void cooking(Explorer&) const noexcept;
 
     public:
         FirePlanet()=delete;
-        FirePlanet(std::string,float,float);
-        FirePlanet(const FirePlanet&);
-        void action(Explorer&) const;
-        std::string toString() const;
-        ~FirePlanet();
+        FirePlanet(std::string,float,float) noexcept;
+        FirePlanet(const FirePlanet&) noexcept;
+        void action(Explorer&) const noexcept;
+        std::string toString() const noexcept;
+        ~FirePlanet() noexcept;
 };
 
 #endif

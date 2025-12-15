@@ -61,8 +61,11 @@ Planet* getNewPlanet(const std::string& line) { // throws domain_error, runtime_
     } else if (type == "A"){ // se è un asteroide che devo aggiungere non mi serve altro
         retVal = new Asteroid();
     } else if (type == "D") {
-        retVal = new DestroyedPlanet();
-    }else {
+        retVal = NULL;
+    } else {
+
+        // controllo se è distrutto
+        bool isDestroyed = (findNextS().compare("d")==0);
 
         // cerco il nome
         std::string name(findNextS());
@@ -117,14 +120,16 @@ Planet* getNewPlanet(const std::string& line) { // throws domain_error, runtime_
             retVal = new IndustryPlanet(name,energySup,mineral,energy);
             
         } // non mi serve l'else perchè ho fatto il controllo fatto prima e sono sicuro che almeno in un if è entrato
+
+        if(isDestroyed) retVal->destroy();
     }
 
     return retVal;
 }
 
-Galaxy::Galaxy(std::fstream& _in, std::string _save, std::unique_ptr<Explorer>& _exp, int _currentPlanet) : saveFile(_save), exp(std::move(_exp)){ // throws domain_error
+Galaxy::Galaxy(std::fstream& _in, std::string _save, std::unique_ptr<Explorer>& _exp, std::weak_ptr<Planet> destroyed) : saveFile(_save), exp(std::move(_exp)){ // throws domain_error
     
-    currentPlanet=_currentPlanet;
+    destroyedPlanet=destroyed;
     
     //inizio a leggere i pianeti
     std::string line;
@@ -132,24 +137,41 @@ Galaxy::Galaxy(std::fstream& _in, std::string _save, std::unique_ptr<Explorer>& 
     std::getline(_in,line);
     while ( line[0] != '%'){ // prima della linea %%% ci sono le definizioni dei pianeti, mentre dopo c'è la mappa
         
-        if (line.empty()){
+        if (line.empty()){ // salto le linee vuote
             std::getline(_in,line);
             continue;
         }
         
         try {
             pp = getNewPlanet(line);
+            if (pp==NULL){ // NULL indica un pianeta distrutto
+                pp = destroyedPlanet.lock().get();
+            }
         } catch (std::domain_error e) {
             std::cerr<<"Planet no "<<map.nNodes()<<": "<<e.what()<<std::endl;
             throw e;
         } catch (std::runtime_error e){
             std::cerr<<"Planet no "<<map.nNodes()<<": "<<e.what()<<std::endl;
-            pp = new DestroyedPlanet();
+            pp = destroyedPlanet.lock().get();
         } catch (...) {
             std::cerr<<"An unknown error has occurred.\n";
-            pp = new DestroyedPlanet();
+            pp = destroyedPlanet.lock().get();
         }
+
         map+=pp;
+        std::getline(_in,line);
+    }
+
+    std::getline(_in,line);
+    while ( line[0] != '%'){ // leggo il pianeta da dove iniziare
+        
+        if (line.empty()){ // salto le linee vuote
+            std::getline(_in,line);
+            continue;
+        }
+        
+        currentPlanet = atoi(line.c_str()); // si salva l'ultimo numero che legge prima di %%%
+
         std::getline(_in,line);
     }
 
@@ -162,10 +184,11 @@ Galaxy::Galaxy(std::fstream& _in, std::string _save, std::unique_ptr<Explorer>& 
 
 }
 
-Galaxy::Galaxy(const Galaxy& g) : map(g.map), saveFile(g.saveFile){ // il costruttore di copia di map lo uso per salvarmi gli archi
-    
+Galaxy::Galaxy(const Galaxy& g) noexcept : map(g.map), saveFile(g.saveFile+'1'){ // il costruttore di copia di map lo uso per salvarmi gli archi
+
     currentPlanet=g.currentPlanet;
     exp.reset(new Explorer(*g.exp)); // copio l'esploratore
+    destroyedPlanet=g.destroyedPlanet;
     
     for(int i=0;i<map.nNodes();i++){
         switch (g.map[i]->getType()) { // devo creare manualmente i nuovi pianeti visto che il costruttore di copia di Graph ha solo copiato i puntatori
@@ -180,10 +203,11 @@ Galaxy::Galaxy(const Galaxy& g) : map(g.map), saveFile(g.saveFile){ // il costru
     }
 }
 
-Galaxy& Galaxy::operator=(const Galaxy& g){
+Galaxy& Galaxy::operator=(const Galaxy& g) noexcept {
 
     currentPlanet=g.currentPlanet;
     exp.reset(new Explorer(*g.exp));
+    destroyedPlanet=g.destroyedPlanet;
     // saveFile=g.saveFile;
 
     for(int i=0;i<map.nNodes();i++){ // libero dalla memoria i vecchi pianeti
@@ -208,11 +232,12 @@ Galaxy& Galaxy::operator=(const Galaxy& g){
 
 }
 
-Galaxy::Galaxy(Galaxy&& g) : saveFile(std::move(g.saveFile)), map(std::move(g.map)){
+Galaxy::Galaxy(Galaxy&& g) noexcept : saveFile(std::move(g.saveFile)), map(std::move(g.map)){
     
     currentPlanet = g.currentPlanet;
     g.currentPlanet = 0;
     exp=std::move(g.exp);
+    destroyedPlanet=std::move(g.destroyedPlanet);
     // g.saveFile.clear();
 
     for(int i=0;i<map.nNodes();i++){ // mi assicuro che i Planet* siano a null in g
@@ -221,9 +246,10 @@ Galaxy::Galaxy(Galaxy&& g) : saveFile(std::move(g.saveFile)), map(std::move(g.ma
 
 }
 
-Galaxy& Galaxy::operator=(Galaxy&& g){
+Galaxy& Galaxy::operator=(Galaxy&& g) noexcept {
 
     exp=std::move(g.exp);
+    destroyedPlanet=std::move(g.destroyedPlanet);
     // saveFile=g.saveFile;
     currentPlanet=g.currentPlanet;
     // g.saveFile.clear();
@@ -238,7 +264,7 @@ Galaxy& Galaxy::operator=(Galaxy&& g){
 
 }
 
-void Galaxy::spawnAsteroid(){
+void Galaxy::spawnAsteroid() noexcept {
     srand(time(NULL));
     
     int planetAdj1 = rand()%(map.nNodes()); // scelgo la posizione dove posizionare l'asteroide
@@ -249,17 +275,17 @@ void Galaxy::spawnAsteroid(){
     map.addConnectedNode(new Asteroid(),{planetAdj1,planetAdj2}); // aggiungo l'asteroide sul cammino
 }
 
-void Galaxy::destroyAsteroid(){
+void Galaxy::destroyAsteroid() noexcept {
 
     bool done=false;
 
     const std::vector<int> adj = map.adj(currentPlanet);
     
     std::for_each(adj.begin(),adj.end(),
-        [&](int adj) {
+        [this,&done](int adj) { // posso catturare this come valore perchè è un puntatore e non l'oggetto in se'
             if (map[adj]->getType() == AsteroidT && !done){
                 try {
-                    *exp-=rocket;
+                    (*exp).shootRocket();
                     // devo togliere il nodo e collegare i due suoi vicini
                     const std::vector<int> adjAsteroid = map.adj(adj);
                     // l'asteroide ha sempre due vicini
@@ -299,36 +325,42 @@ void Galaxy::beginTurn(){ // throws logic_error
     }
 }
 
-void Galaxy::action() const{
+void Galaxy::action() const noexcept{
     map[currentPlanet]->action(*exp);
 }
 
-void Galaxy::regenerate() const {
+void Galaxy::regenerate() const noexcept{
     map[currentPlanet]->regenerate(*exp);
 }
 
 void Galaxy::travel(){ // throws logic_error
     
     // calcolo i pianeti adiacenti con BFS
-    std::vector<int> to; // conterrà i pianeti in cui posso viaggiare
-    bool visited[map.nNodes()] = {};
-    std::queue<int> Q;
+    std::vector<int> to,adj(map.adj(currentPlanet)); // to conterrà i pianeti in cui posso viaggiare
     std::map<int,int> predecessor; // mi serve per capire che percorso faccio e quanto danno prendo
-    
-    Q.push(currentPlanet);
-    predecessor[currentPlanet] = currentPlanet;
-    visited[currentPlanet] = true;
 
-    while (!Q.empty()) {
-        int index = Q.front(); Q.pop();
+    if (std::none_of(adj.begin(),adj.end(),[this](int index){return map[index]->getType() == AsteroidT;})){
+        to=std::move(adj); // se non ci sono asteroidi non serve che faccio la visita
+    } else {
 
-        if(map[index]->getType()!=AsteroidT) to.push_back(index);
+        bool visited[map.nNodes()] = {};
+        std::queue<int> Q;
+        
+        Q.push(currentPlanet);
+        predecessor[currentPlanet] = currentPlanet;
+        visited[currentPlanet] = true;
 
-        for(const auto& adj : map.adj(index)){
-            if (!visited[adj] && (index==currentPlanet || map[index]->getType() == AsteroidT) ){
-                Q.push(adj);
-                predecessor[adj] = index;
-                visited[adj]=true;
+        while (!Q.empty()) {
+            int index = Q.front(); Q.pop();
+
+            if(map[index]->getType()!=AsteroidT) to.push_back(index);
+
+            for(const auto& adj : map.adj(index)){
+                if (!visited[adj] && (index==currentPlanet || map[index]->getType() == AsteroidT) ){
+                    Q.push(adj);
+                    predecessor[adj] = index;
+                    visited[adj]=true;
+                }
             }
         }
     }
@@ -363,7 +395,11 @@ void Galaxy::travel(){ // throws logic_error
 
 }
 
-Galaxy::~Galaxy(){
+void Galaxy::repair() noexcept{
+    exp->repairShip();
+}
+
+Galaxy::~Galaxy() noexcept{
     std::fstream save;
     save.open(saveFile,std::fstream::out);
     if(!save){
@@ -375,14 +411,12 @@ Galaxy::~Galaxy(){
             save<<map[i]->toString()<<std::endl;
         }
         
-        save<<"%%%\n";
+        save<<"%%%"<<std::endl<<currentPlanet<<std::endl<<"%%%\n";
         
         // collegamenti
         for(int i=0;i<map.nNodes();i++){
             const std::vector<int> adj = map.adj(i);
-            for(auto it = adj.begin(); it != adj.end(); it++){
-                save<<i<<" "<<*it<<"\n";
-            }
+            std::for_each(adj.begin(),adj.end(),[&i](int des){std::cout<<i<<" "<<des<<std::endl;});
         }
 
         // // collegamenti
@@ -391,11 +425,15 @@ Galaxy::~Galaxy(){
         //         save<<i<<" "<<it<<"\n";
         //     }
         // }
+
+        save.close();
     }
 
     // libero la memoria, exp si arrangia a gestire la deallocazione poichè è uno smart pointer
     for(int i=0;i<map.nNodes();i++){
-        delete map[i];
+        if (map[i]->getType() != Destroyed){ // per il pianeta destroyed non devo fare niente perchè anche altre galassie potrebbero utilizzarlo, si arrangia lo  shared_ptr
+            delete map[i];
+        }
         map[i]=NULL;
     }
 }
