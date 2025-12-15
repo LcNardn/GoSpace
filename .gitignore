@@ -1,9 +1,0 @@
-# Compiled Object file
-*.o
-
-# Executable
-*.out
-
-# Project env
-.vscode
-test/*
