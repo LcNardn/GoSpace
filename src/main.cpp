@@ -11,12 +11,13 @@
 #include <ctime>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <fstream>
 #include <iostream>
 using namespace std;
 
 mutex access;
-bool finish=false; // per segnalare alle thread che devono terminare
+atomic <bool> finish{false}; // per segnalare alle thread che devono terminare
 
 void asteroidThread(shared_ptr<Galaxy>);
 void playerThread(shared_ptr<Galaxy>);
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]){
     // creo la galassia
     unique_ptr<Explorer> exp(new Explorer());
     shared_ptr<Planet> des(new DestroyedPlanet());
-    shared_ptr<Galaxy> gal; // così non devo neanche pensare alla deallocazione
+    shared_ptr<Galaxy> gal; // viene condivisa da più thread
     try {
         gal.reset(new Galaxy(in,argv[2],exp,weak_ptr<Planet>(des)));
     } catch (domain_error e){
@@ -87,7 +88,7 @@ void asteroidThread(shared_ptr<Galaxy> gal){
 
     srand(time(NULL));
 
-    while(!finish){
+    while(!finish.load()){
         this_thread::sleep_for(chrono::seconds(60));
         int spawn = rand()%10;
         if (spawn==0 && access.try_lock()){ // lazy evaluation mi impedisce situazioni di deadlock, cosa non vera se scambio le condizioni
@@ -104,9 +105,9 @@ void playerThread(shared_ptr<Galaxy> gal){
     string choice;
     getline(cin,choice); // pulisco il buffer di input
 
-    while (!finish){
+    while (!finish.load()){
         cout<<"Turn "<<nTurns<<endl<<*gal;
-        cout<<endl<<"1) Action on the planet\t4) Rest\n2) Travel\t5) Restore planet\n3) Repair ship\t6) Save and exit\n";
+        cout<<endl<<"1) Action\t4) Rest\n2) Travel\t5) Restore planet\n3) Repair ship\t6) Save and exit\n";
         cout<<"What do you want to do? ";
         
         getline(cin,choice);
@@ -135,6 +136,7 @@ void playerThread(shared_ptr<Galaxy> gal){
                 access.lock(); // visto che il metodo accede alla mappa, devo assicurarmi che l'altra thread non la stia modificando in contemporanea
                 gal->travel();
                 access.unlock();
+                getline(cin,choice); // pulisco lo stream
             } catch (logic_error e){
                 cout<<"Your ship has been destroyed. Game over.\n";
                 finish=true;
@@ -154,7 +156,7 @@ void playerThread(shared_ptr<Galaxy> gal){
         
             finish=true;
         
-        } else {cout<<"Unknown action.\n";}
+        } else {cout<<choice<<"is an unknown action.\n";}
 
         cout<<"====================================\n";
 

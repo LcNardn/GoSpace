@@ -341,6 +341,7 @@ void Galaxy::travel(){ // throws logic_error
 
     if (std::none_of(adj.begin(),adj.end(),[this](int index){return map[index]->getType() == AsteroidT;})){
         to=std::move(adj); // se non ci sono asteroidi non serve che faccio la visita
+        to.insert(to.cbegin(),currentPlanet);
     } else {
 
         bool visited[map.nNodes()] = {};
@@ -416,7 +417,7 @@ Galaxy::~Galaxy() noexcept{
         // collegamenti
         for(int i=0;i<map.nNodes();i++){
             const std::vector<int> adj = map.adj(i);
-            std::for_each(adj.begin(),adj.end(),[&i](int des){std::cout<<i<<" "<<des<<std::endl;});
+            std::for_each(adj.begin(),adj.end(),[&i,&save](int des){save<<i<<" "<<des<<std::endl;});
         }
 
         // // collegamenti
