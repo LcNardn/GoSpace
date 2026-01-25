@@ -34,7 +34,6 @@ class Explorer{
 
 
         // getters
-        int getOx() const noexcept;
         float getEn() const noexcept;
         float getHe() const noexcept;
 

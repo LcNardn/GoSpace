@@ -14,6 +14,7 @@
 #include <atomic>
 #include <fstream>
 #include <iostream>
+#include <exception>
 using namespace std;
 
 mutex access;
@@ -114,7 +115,14 @@ void playerThread(shared_ptr<Galaxy> gal){
 
         if(choice.compare("Action")==0 || choice.compare("action")==0 || choice.compare("ACTION")==0 || choice.compare("1")==0){
 
-            gal->action();
+            cout<<"On the planet or on the asteroid? ";
+            getline(cin,choice);
+
+            if (choice.compare("1")==0 || choice.compare("planet")==0 || choice.compare("Planet")==0 || choice.compare("PLANET")==0){
+                gal->action();
+            } else if (choice.compare("2")==0 || choice.compare("asteroid")==0 || choice.compare("Asteroid")==0 || choice.compare("ASTEROID")==0){
+                gal->destroyAsteroid();
+            } else {cout<<choice<<"is an unknown action.\n";}
 
         } else if (choice.compare("Rest")==0 || choice.compare("rest")==0 || choice.compare("REST")==0 || choice.compare("4")==0){
 

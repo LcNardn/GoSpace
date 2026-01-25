@@ -285,18 +285,22 @@ void Galaxy::destroyAsteroid() noexcept {
         [this,&done](int adj) { // posso catturare this come valore perchè è un puntatore e non l'oggetto in se'
             if (map[adj]->getType() == AsteroidT && !done){
                 try {
-                    (*exp).shootRocket();
-                    // devo togliere il nodo e collegare i due suoi vicini
-                    const std::vector<int> adjAsteroid = map.adj(adj);
-                    // l'asteroide ha sempre due vicini
-                    map+={adjAsteroid[0],adjAsteroid[1]};
-                    // tolgo il nodo
-                    map-=map[adj];
-                    done = true;
-                    exp->consumeEnergy(4.0);
-                } catch (std::logic_error e){
+                    if ((*exp).shootRocket()){
+                        exp->consumeEnergy(4.0);
+                        // devo togliere il nodo e collegare i due suoi vicini
+                        const std::vector<int> adjAsteroid = map.adj(adj);
+                        // l'asteroide ha sempre due vicini
+                        map+={adjAsteroid[0],adjAsteroid[1]};
+                        // tolgo il nodo
+                        map-=map[adj];
+                        done = true;
+                    } else {
+                        std::cout<<"There are no rockets to shoot.\n";
+                        done = true;
+                    }
+                } catch (std::out_of_range e){
                     std::cerr<<e.what()<<std::endl;
-                    std::cout<<"There are no rockets to shoot.\n";
+                    std::cout<<"Something went wrong.\n";
                 } catch (...){
                     std::cerr<<"An unknown error has occurred.\n";
                 }

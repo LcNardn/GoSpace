@@ -1,5 +1,7 @@
 #include "./headers/Explorer.h"
 #include <exception>
+#include <iostream>
+#include <unordered_map>
 
 #define DELTA 0.000001
 
@@ -28,8 +30,6 @@ Explorer::Explorer(const Explorer& o) noexcept : inventory(o.inventory) {
 }
 
 // getters
-int Explorer::getOx() const noexcept { return oxygen; }
-
 float Explorer::getEn() const noexcept { return energy; }
 
 float Explorer::getHe() const noexcept { return health; }
@@ -65,7 +65,7 @@ void Explorer::damageShip(float dmg){
 
 bool Explorer::repairShip() noexcept {
     while(inventory[mineral_2]>0 && (heInit-health) > DELTA && energy>0){
-        health+=((heInit-health)*0.5); // cura 20% dei danni subiti
+        health+=((heInit-health)*0.5); // cura 50% dei danni subiti
         *this-=mineral_2;
     }
     consumeEnergy(3);

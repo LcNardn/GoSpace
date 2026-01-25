@@ -8,9 +8,9 @@
 class WaterPlanet : virtual public Planet{
     private:
         static int numTot;
+        
+        protected:
         const int qFish;
-    
-    protected:
         void fishing(Explorer&) const noexcept;
 
     public:

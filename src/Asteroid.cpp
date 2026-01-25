@@ -23,7 +23,6 @@ Asteroid::Asteroid(const Asteroid& _o) noexcept : Planet(_o) {
 void Asteroid::action(Explorer& exp) const {
     try {
         exp.damageShip(damage);
-        exp.consumeEnergy(energyNeed);
         std::cout<<"The ship has been damaged by an asteroid for "<<damage<<" health points.\nHP remaining: "<<exp.getHe()<<std::endl;
     } catch (std::logic_error e){ // non ho più vita e devo segnalarlo a qualcuno
         std::cerr<<e.what()<<std::endl;
